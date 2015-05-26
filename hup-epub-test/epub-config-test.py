@@ -7,8 +7,8 @@ tag_list = [{'tag': 'body', 'attrs': {'epub:type': 'bodymatter'}},
             {'tag': 'article', 'attrs': {'role': 'main', 'epub:type': 'chapter'}},
             {'tag': 'img', 'attrs': {'id': '', 'alt': ''}},
             {'tag': 'blockquote', 'attrs': {'class': ['epigraph', 'extract']}},
-            {'tag': 'tr', 'attrs': {'role': 'row'}}
-            {'tag': 'h1', 'attrs': {'class': 'head'}}
+            {'tag': 'tr', 'attrs': {'role': 'row'}},
+            {'tag': 'h1', 'attrs': {'class': 'head'}},
             ]
 
 
@@ -104,23 +104,14 @@ class Test:
             if ('alt' not in image.attrs) or (image['alt'] == "image") or (image['alt'] == ""):
                 self.out_file.write("no alt text for "+image.name+"\n")
 
-    def check_notes(self, soup, nuts, file):
+    def check_notes(self, soup, footnotes, file):
         """Examine callout and notes. Check that notes and links work both ways."""
         links = soup.select('a[href^="note"]')
-        footnotes = nuts
         for link in links:
             l = link['href'].partition('#')[2]
-            for fnote in footnotes:
-                if fnote['id']:
-                    if fnote['id'] == l:
-                        m = fnote
-#                        print(m)
-                else:
-                    print('no id')
-            # try:
-            #     m = [f for f in footnotes if f['id'] == l]
-            #     if not m[0]:
-            #         self.out_file.write("no match for "+l+"\n")
+            match = [footnote for footnote in footnotes if footnote['id'] == l]
+            if not match[0]:
+                self.out_file.write("no match for "+l+"\n")
             # except KeyError:
 
 
