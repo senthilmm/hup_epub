@@ -49,7 +49,7 @@ class Test:
     def html_tests(self, files, epub):
         """For each html file, make the Soup and pass it to the tests."""
         nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
-        nuts = BeautifulSoup(epub.open(nuts_file[0])).select("p > a:nth-of-type(1)")  # make soup from notes
+        nuts = BeautifulSoup(epub.open(nuts_file[0])).select("a[id]")  # make soup from notes
         for html in files:
             file_test = html.rsplit('/', maxsplit=1)[1]
             self.out_file.write("\n"+"{:-^60}".format(file_test)+"\n")
