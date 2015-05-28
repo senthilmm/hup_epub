@@ -60,7 +60,6 @@ def check_tags(soup, tags, messages):
         tag_soup = soup.find_all(tag.get("tag"))
         for element in tag_soup:
             attr_exist, messages = check_attr_exist(element, tag["attrs"], messages)
-            print(attr_exist)
             if attr_exist:
                 check_attr_values(element, tag["attrs"], messages)
     return messages
@@ -81,7 +80,6 @@ def check_figure(soup, messages):
 def check_attr_exist(tag, attrs, messages):
     """Check attribute attr exists for tag."""
     for attr in attrs.keys():
-        print("a: ",attr, "t: ", tag.name, tag.attrs)
         if attr not in tag.attrs:
             messages.append(attr+" not found for "+tag.name+"\n")
             return False, messages
@@ -92,7 +90,6 @@ def check_attr_exist(tag, attrs, messages):
 def check_attr_values(tag, attrs, messages):
     """check that attribute has allowed value"""
     for attr, values in attrs.items():
-        print(attr, values, tag.name, tag.attrs)
         for value in values:
             if value not in tag.attrs[attr]:
                 messages.append(attr+" value "+value+" missing or incorrect\n")
@@ -127,10 +124,9 @@ def main(file):
     html_files, css_files, opf_file = parse_file_list(epub)
     get_metadata(epub.open(opf_file[0]))
     result = html_tests(html_files, epub, messages)
-    print(result)
     with open(output_filename, 'w') as results:
         for line in result:
-            print(line)
+            results.write(line)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
