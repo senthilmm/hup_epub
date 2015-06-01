@@ -55,14 +55,13 @@ def html_tests(files, epub, messages):
     return messages
 
 
-def check_tags(soup, tags, messages):
-    for tag in tags:
+def check_tags(soup, tag_list, messages):
+    for tag in tag_list:
         tag_soup = soup.find_all(tag.get("tag"))
         for element in tag_soup:
-            attr_exist, messages = check_attr_exist(element, tag["attrs"], messages)
-            if attr_exist:
-                check_attr_values(element, tag["attrs"], messages)
-    return messages
+            messages = [check_attr_values(element, tag["attrs"], messages)
+for attr in tag["attrs"] if check_attr_exist(element, attr, messages)[0]]
+        return messages
 
 
 def check_figure(soup, messages):
@@ -77,14 +76,13 @@ def check_figure(soup, messages):
     return messages
 
 
-def check_attr_exist(tag, attrs, messages):
+def check_attr_exist(tag, attr, messages):
     """Check attribute attr exists for tag."""
-    for attr in attrs.keys():
-        if attr not in tag.attrs:
-            messages.append(attr+" not found for "+tag.name+"\n")
-            return False, messages
-        else:
-            return True, messages
+    if attr not in tag.attrs:
+        messages.append(attr+" not found for "+tag.name+"\n")
+        return False, messages
+    else:
+        return True, messages
 
 
 def check_attr_values(tag, attrs, messages):
