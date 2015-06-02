@@ -60,12 +60,13 @@ def html_tests(files, epub, messages):
 
 def check_tags(soup, tag_list, messages):
     for tag_to_check in tag_list:
-        logging.debug("tag %r" % tag_to_check['tag'])
+        logging.debug("tag %r" % tag_to_check)
         tag_soup = soup.find_all(tag_to_check.get("tag"))
         for element in tag_soup:
-            messages = [check_attr_values(element, attr, tag_to_check["attrs"][attr], messages)
-for attr in tag_to_check["attrs"] if check_attr_exist(element, attr, messages)]
-        return messages
+            message = [check_attr_values(element, attr, tag_to_check["attrs"][attr], messages)
+                        for attr in tag_to_check["attrs"] if check_attr_exist(element, attr, messages)]
+            messages.append(message)
+    return messages
 
 
 def check_figure(soup, messages):
