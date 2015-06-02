@@ -63,7 +63,7 @@ def check_tags(soup, tag_list, messages):
         logging.debug("tag %r" % tag_to_check['tag'])
         tag_soup = soup.find_all(tag_to_check.get("tag"))
         for element in tag_soup:
-            messages = [check_attr_values(element, attr, messages)
+            messages = [check_attr_values(element, attr, tag_to_check["attrs"][attr], messages)
 for attr in tag_to_check["attrs"] if check_attr_exist(element, attr, messages)]
         return messages
 
@@ -88,10 +88,10 @@ def check_attr_exist(tag, attr, messages):
         return True
 
 
-def check_attr_values(tag, attr, messages):
+def check_attr_values(tag, attr, values, messages):
     """check that attribute has allowed value"""
-#    logging.DEBUG("tag "+tag+", "+attr)
-    for value in attr.values():
+    logging.debug("tag %r %r" % (tag.name, attr))
+    for value in values:
         if value not in tag.attrs[attr]:
             messages.append(attr+" value "+value+" missing or incorrect\n")
     return messages
