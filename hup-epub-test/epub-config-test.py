@@ -2,6 +2,9 @@ import argparse
 import zipfile
 import re
 from bs4 import BeautifulSoup, SoupStrainer
+import logging
+
+logging.basicConfig(level='DEBUG')
 
 tag_list = [{'tag': 'body', 'attrs': {'epub:type': ['bodymatter']}},
             {'tag': 'article', 'attrs': {'role': ['main'], 'epub:type': ['chapter']}},
@@ -56,12 +59,12 @@ def html_tests(files, epub, messages):
 
 
 def check_tags(soup, tag_list, messages):
-    for tag in tag_list:
-        print(tag, tag.get("tag"))
-        tag_soup = soup.find_all(tag.get("tag"))
+    for tag_to_check in tag_list:
+        logging.debug("tag %r" % tag_to_check['tag'])
+        tag_soup = soup.find_all(tag_to_check.get("tag"))
         for element in tag_soup:
             messages = [check_attr_values(element, attr, messages)
-for attr in tag["attrs"] if check_attr_exist(element, attr, messages)]
+for attr in tag_to_check["attrs"] if check_attr_exist(element, attr, messages)]
         return messages
 
 
@@ -87,7 +90,7 @@ def check_attr_exist(tag, attr, messages):
 
 def check_attr_values(tag, attr, messages):
     """check that attribute has allowed value"""
-    print(tag, attr)
+#    logging.DEBUG("tag "+tag+", "+attr)
     for value in attr.values():
         if value not in tag.attrs[attr]:
             messages.append(attr+" value "+value+" missing or incorrect\n")
