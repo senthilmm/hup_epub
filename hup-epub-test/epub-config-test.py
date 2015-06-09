@@ -23,23 +23,23 @@ def parse_file_list(file):
     return html_files, css_files, opf_file
 
 
-def get_metadata(opf):
+def get_metadata(opf, messages):
     """Find title and author metadata and print it."""
     metadata = SoupStrainer("metadata")
     content = BeautifulSoup(opf, "xml", parse_only=metadata)
     try:
-        print('Title: {0}'.format(content.title.contents[0].string))
+        messages.append('Title: {0}\n'.format(content.title.contents[0].string))
     except AttributeError:
-        print("No author found")
+        messages.append("No author found\n")
     try:
         sub = content.find(id="subtitle").string
-        print("Subtitle: ", sub)
+        messages.append("Subtitle: "+sub+"\n")
     except AttributeError:
-        print("No subtitle found")
+        messages.append("No subtitle found\n")
     try:
-        print('Author: {0}'.format(content.creator.contents[0].string))
+        messages.append('Author: {0}\n'.format(content.creator.contents[0].string))
     except:
-        print("No author found")
+        messages.append("No author found\n")
 
 
 def html_tests(files, epub, messages):
@@ -47,25 +47,28 @@ def html_tests(files, epub, messages):
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
     nuts = BeautifulSoup(epub.open(nuts_file[0])).select("a[id]")  # make soup from notes
     for html in files:
-        file_test = html.rsplit('/', maxsplit=1)[1]
-        messages.append("\n"+"{:-^60}".format(file_test)+"\n")
+        file_to_test = html.rsplit('/', maxsplit=1)[1]
+        messages.append("\n"+"{:-^60}".format(file_to_test)+"\n")
         soup = BeautifulSoup(epub.open(html))
         check_tags(soup, tag_list, messages)
-        text_list = ["chapter", "intro", "preface"]
-        for text in text_list:
-            if text in file_test:
-                check_notes(soup, nuts, file_test, messages)
+        note_list = ["chapter", "intro", "preface"]
+        for name in note_list:
+            if name in file_to_test:
+                check_notes(soup, nuts, file_to_test, messages)
     return messages
 
 
 def check_tags(soup, tag_list, messages):
+    """cycle through tag list. Check that attribute exists before checking vlaue"""
     for tag_to_check in tag_list:
         logging.debug("tag %r" % tag_to_check)
         tag_soup = soup.find_all(tag_to_check.get("tag"))
         for element in tag_soup:
-            message = [check_attr_values(element, attr, tag_to_check["attrs"][attr], messages)
-                        for attr in tag_to_check["attrs"] if check_attr_exist(element, attr, messages)]
-            messages.append(message)
+            for attr in tag_to_check["attrs"]:
+                if attr in element.attrs:
+                    check_attr_values(element, attr, tag_to_check["attrs"][attr], messages)
+                else:
+                    messages.append(attr+" not found for "+element.name+"\n")
     return messages
 
 
@@ -81,20 +84,13 @@ def check_figure(soup, messages):
     return messages
 
 
-def check_attr_exist(tag, attr, messages):
-    if attr not in tag.attrs:
-        messages.append(attr+" not found for "+tag.name+"\n")
-        return False
-    else:
-        return True
-
-
 def check_attr_values(tag, attr, values, messages):
     """check that attribute has allowed value"""
-    logging.debug("tag %r %r" % (tag.name, attr))
-    for value in values:
-        if value not in tag.attrs[attr]:
-            messages.append(attr+" value "+value+" missing or incorrect\n")
+    value_set = set(values)
+    attribute_values = set(tag.attrs[attr])
+    logging.debug("attrs %r %r" % (value_set, attribute_values))
+    if value_set.isdisjoint(attribute_values):
+        messages.append(attr+" value for "+tag.name+"  missing or incorrect\n")
     return messages
 
 
@@ -124,11 +120,12 @@ def main(file):
     messages = []
     output_filename = file.rsplit('.', maxsplit=1)[0]+".txt"
     html_files, css_files, opf_file = parse_file_list(epub)
-    get_metadata(epub.open(opf_file[0]))
+    get_metadata(epub.open(opf_file[0]), messages)
     result = html_tests(html_files, epub, messages)
+#    logging.debug(repr(result))
     with open(output_filename, 'w') as results:
-        for line in result:
-            results.write(line)
+        line = ''.join(result)
+        results.write(line)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
