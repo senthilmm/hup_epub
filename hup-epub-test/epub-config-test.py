@@ -24,7 +24,7 @@ def parse_file_list(file):
 
 
 def get_metadata(opf, messages):
-    """Find title and author metadata and print it."""
+    """Find title and author metadata."""
     metadata = SoupStrainer("metadata")
     content = BeautifulSoup(opf, "xml", parse_only=metadata)
     try:
