@@ -19,10 +19,18 @@
         <rule context="html:table">
             <assert test="*//html:tr[@role='row']">table rows need aria role 'row'</assert>
             <assert test="preceding-sibling::html:img">no fallback image</assert>
+            <assert test="preceding-sibling::html:img[@class='fallback']">fallback image missing class</assert>
         </rule>
         <rule context="html:blockquote">
             <assert test="@class">no style applied to blockquote</assert>
             <assert test="@class='epigraph' or @class='extract'">class mismatch for blockquote</assert>
+        </rule>
+        <rule context="html:aside">
+            <assert test="@class='sidebar'">aside is normally a sidebar</assert>
+            <assert test="@role='complementary'">aside needs an aria role</assert>
+        </rule>
+        <rule context="html:section/html:h1">
+            <assert test="substring-before(@class, ' ')='head' and substring-after(@class, ' ')='a-head'">this is an A-head</assert>
         </rule>
     </pattern>
 </schema>
