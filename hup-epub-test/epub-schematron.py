@@ -18,7 +18,7 @@ def parse_file_list(file):
 
 
 def get_metadata(opf, messages):
-    """Find title and author metadata."""
+    """Find metadata"""
     meta_data = objectify.parse(opf).getroot()
     meta_list = meta_data.findall('.//{http://www.idpf.org/2007/opf}meta')
     dc_list = meta_data.find('.//{http://www.idpf.org/2007/opf}metadata')
@@ -29,30 +29,33 @@ def get_metadata(opf, messages):
 def html_tests(files, epub, messages):
     """For each html file, make the Soup and pass it to the tests."""
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
-    notes = epub.extract(nuts_file[0])
-    note_file = lh.parse(notes).getroot().findall(".//a[@id]")
+    notes = epub.open(nuts_file[0])
+    note_list = lh.parse(notes).getroot().findall(".//a[@id]")
     for html in files:
         file_to_test = html.rsplit('/', maxsplit=1)[1]
         messages.append("\n"+"{:-^60}".format(file_to_test)+"\n")
-        html_file = epub.extract(html)
+        html_file = epub.open(html)
         check_tags(html_file, messages)
-        note_list = ["chapter", "intro", "preface"]
-        for name in note_list:
+        note_checks = ["chapter", "intro", "preface"]
+        for name in note_checks:
             if name in file_to_test:
-                check_notes(html_file, note_file, file_to_test, messages)
+                html_file = epub.open(html)
+                check_notes(html_file, note_list, file_to_test, messages)
     return messages
 
 
 def check_tags(html, messages):
+    """run the schematron tests on each html document"""
     schema_tree = etree.parse('test.sch')
     schematron = isoschematron.Schematron(schema_tree, store_report=True)
     html_parse = etree.parse(html)
     schematron.validate(html_parse)
     report = schematron.validation_report
-    print(html, report.xpath("//text()"))
+    print(html.name, report.xpath("//text()"))
 
 
 def check_notes(html, notes, file_to_test, messages):
+    """for each chapter, check note callouts for matching endnotes, then reverse"""
     chapter = lh.parse(html).getroot().findall(".//a[@href]")
     # note_refs = lh.iterlinks(notes)
     for link in chapter:
@@ -80,7 +83,7 @@ def main(file):
     messages = []
     output_filename = file.rsplit('.', maxsplit=1)[0]+".txt"
     html_files, css_files, opf_file = parse_file_list(epub)
-    get_metadata(epub.extract(opf_file[0]), messages)
+    get_metadata(epub.open(opf_file[0]), messages)
     result = html_tests(html_files, epub, messages)
 #    logging.debug(repr(result))
     with open(output_filename, 'w') as results:
