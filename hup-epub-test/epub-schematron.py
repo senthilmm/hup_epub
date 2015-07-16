@@ -6,7 +6,7 @@ import lxml.html as lh
 
 import logging
 
-logging.basicConfig(level='DEBUG')
+logging.basicConfig(filename='etest.log', level=logging.INFO, format='%(message)s')
 
 
 def parse_file_list(file):
@@ -17,54 +17,54 @@ def parse_file_list(file):
     return html_files, css_files, opf_file
 
 
-def get_metadata(opf, messages):
+def get_metadata(opf):
     """Find metadata"""
     meta_data = objectify.parse(opf).getroot()
     meta_list = meta_data.findall('.//{http://www.idpf.org/2007/opf}meta')
     dc_list = meta_data.find('.//{http://www.idpf.org/2007/opf}metadata')
     for child in dc_list.iterchildren():
-        print(child.xpath('local-name()'), child.text)
+        tag = child.xpath('local-name()')
+        val = child.text
+        logging.info("%s, %s", tag, val)
 
 
-def html_tests(files, epub, messages):
+def html_tests(files, epub):
     """For each html file, make the Soup and pass it to the tests."""
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
     notes = epub.open(nuts_file[0])
     note_list = lh.parse(notes).getroot().findall(".//a[@id]")
     for html in files:
         file_to_test = html.rsplit('/', maxsplit=1)[1]
-        messages.append("\n"+"{:-^60}".format(file_to_test)+"\n")
         html_file = epub.open(html)
-        check_tags(html_file, messages)
+        check_tags(html_file)
         note_checks = ["chapter", "intro", "preface"]
         for name in note_checks:
             if name in file_to_test:
                 html_file = epub.open(html)
-                check_notes(html_file, note_list, file_to_test, messages)
-    return messages
+                check_notes(html_file, note_list, file_to_test)
 
 
-def check_tags(html, messages):
+def check_tags(html):
     """run the schematron tests on each html document"""
     schema_tree = etree.parse('test.sch')
     schematron = isoschematron.Schematron(schema_tree, store_report=True)
     html_parse = etree.parse(html)
     schematron.validate(html_parse)
     report = schematron.validation_report
-    print(html.name, report.xpath("//text()"))
+    fname = html.name
+    reports = '\n'.join(report.xpath("//text()"))
+    logging.info("%s, %s", fname, reports)
 
 
-def check_notes(html, notes, file_to_test, messages):
+def check_notes(html, notes, file_to_test):
     """for each chapter, check note callouts for matching endnotes, then reverse"""
     chapter = lh.parse(html).getroot().findall(".//a[@href]")
-    # note_refs = lh.iterlinks(notes)
     for link in chapter:
         if link.attrib['href'].startswith('note'):
             part = link.attrib['href'].partition('#')[2]
             match = [ref.tag for ref in notes if ref.attrib['id'] == part]
             if not match[0]:
-                print('no match for', link[0].attrib['id'] )
-            print(match[0])
+                logging.info('no match for %s', link[0].attrib['id'] )
     for ref in notes:
         chap_refs = [link for link in chapter if 'id' in link.attrib]
         try:
@@ -72,23 +72,18 @@ def check_notes(html, notes, file_to_test, messages):
             if target[0] == file_to_test:
                 match = [link.tag for link in chap_refs if link.attrib['id'] == target[2]]
                 if match[0]:
-                    print('match:', match[0])
+                    pass
                 else:
-                    print('no match')
+                    logging.info('no match')
         except KeyError:
-            print('No href attribute')
+            logging.info('No href attribute')
 
 def main(file):
     epub = zipfile.ZipFile(file, 'r')
-    messages = []
     output_filename = file.rsplit('.', maxsplit=1)[0]+".txt"
     html_files, css_files, opf_file = parse_file_list(epub)
-    get_metadata(epub.open(opf_file[0]), messages)
-    result = html_tests(html_files, epub, messages)
-#    logging.debug(repr(result))
-    with open(output_filename, 'w') as results:
-        line = ''.join(result)
-        results.write(line)
+    get_metadata(epub.open(opf_file[0]))
+    result = html_tests(html_files, epub)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
