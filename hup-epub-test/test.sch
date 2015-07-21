@@ -8,7 +8,7 @@
             <assert test="html:article">there is not an article</assert>
         </rule>
         <rule context="html:article">
-            <assert test="@role='main'">article needs aria @role 'main'</assert>
+            <assert test="@role='main'"><name/> at <value-of select='position()'/> needs aria @role 'main'</assert>
             <assert test="@epub:type='chapter'">article needs @epub:type 'chapter'</assert>
         </rule>
         <rule context="html:img">
@@ -22,7 +22,7 @@
             <assert test="preceding-sibling::html:img[@class='fallback']">fallback image missing class</assert>
         </rule>
         <rule context="html:blockquote">
-            <assert test="@class">no style applied to blockquote</assert>
+            <assert test="@class"><name/> at <value-of select='position()'/> has no @class.</assert>
             <assert test="@class='epigraph' or @class='extract'">class mismatch for blockquote</assert>
         </rule>
         <rule context="html:aside">
@@ -30,7 +30,8 @@
             <assert test="@role='complementary'">aside needs an aria role</assert>
         </rule>
         <rule context="html:section/html:h1">
-            <assert test="substring-before(@class, ' ')='head' and substring-after(@class, ' ')='a-head'">this is an A-head</assert>
+            <assert test="starts-with(@class, 'head')">H1 has no 'head' class</assert>
+            <assert test="contains(@class, '-head') or contains(@class, '-subhead')">H1 has no head-type class</assert>
         </rule>
     </pattern>
 </schema>

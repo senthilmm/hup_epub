@@ -6,8 +6,6 @@ import lxml.html as lh
 
 import logging
 
-logging.basicConfig(filename='etest.log', level=logging.INFO, format='%(message)s')
-
 
 def parse_file_list(file):
     fnames = file.namelist()
@@ -49,11 +47,14 @@ def check_tags(html):
     schema_tree = etree.parse('test.sch')
     schematron = isoschematron.Schematron(schema_tree, store_report=True)
     html_parse = etree.parse(html)
+    logging.info("%s -------------", html.name)
     schematron.validate(html_parse)
-    report = schematron.validation_report
-    fname = html.name
-    reports = '\n'.join(report.xpath("//text()"))
-    logging.info("%s, %s", fname, reports)
+    reports = schematron.validation_report
+    for report in reports.iter():
+        if report.text is None or report.text == "None":
+            pass
+        else:
+            logging.info("test: %s", report.text)
 
 
 def check_notes(html, notes, file_to_test):
@@ -67,23 +68,24 @@ def check_notes(html, notes, file_to_test):
                 logging.info('no match for %s', link[0].attrib['id'] )
     for ref in notes:
         chap_refs = [link for link in chapter if 'id' in link.attrib]
-        try:
-            target = ref.attrib['href'].partition('#')
-            if target[0] == file_to_test:
-                match = [link.tag for link in chap_refs if link.attrib['id'] == target[2]]
-                if match[0]:
-                    pass
-                else:
+        target = ref.attrib.get('href')
+        if target:
+            if target.partition('#')[0] == file_to_test:
+                match = [link.tag for link in chap_refs if link.attrib['id'] == target.partition('#')[2]]
+                if match[0] is None:
                     logging.info('no match')
-        except KeyError:
+        else:
             logging.info('No href attribute')
 
 def main(file):
     epub = zipfile.ZipFile(file, 'r')
     output_filename = file.rsplit('.', maxsplit=1)[0]+".txt"
     html_files, css_files, opf_file = parse_file_list(epub)
+    logname = file + ".log"
+    logging.basicConfig(filename=logname, filemode='w', level=logging.INFO, format='%(message)s')
     get_metadata(epub.open(opf_file[0]))
-    result = html_tests(html_files, epub)
+    html_tests(html_files, epub)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
