@@ -4,12 +4,16 @@
 <ns uri="http://www.idpf.org/2007/ops" prefix="epub"/>
     <pattern id="primary">
         <rule context="html:body">
-            <assert test="@epub:type = 'bodymatter'">body should be @epub:type 'bodymatter'</assert>
+            <assert test="@epub:type='bodymatter' or @epub:type='frontmatter' or @epub:type='backmatter'">body should have an @epub:type.</assert>
             <assert test="html:article">there is not an article</assert>
         </rule>
         <rule context="html:article">
-            <assert test="@role='main'"><name/> at <value-of select='position()'/> needs aria @role 'main'</assert>
+            <assert test="@role='main'"><name/> at <value-of select='position()'/> needs aria @role 'main'.</assert>
             <assert test="@epub:type='chapter'">article needs @epub:type 'chapter'</assert>
+            <assert test="*[1][name()='div']">there's not a div</assert>
+        </rule>
+        <rule context="html:article/*[1][name()='div']">
+            <assert test="@class='hgroup'">first div should be hgroup</assert>
         </rule>
         <rule context="html:img">
             <assert test="@alt">Alt tag missing from img</assert>
@@ -28,6 +32,9 @@
         <rule context="html:aside">
             <assert test="@class='sidebar'">aside is normally a sidebar</assert>
             <assert test="@role='complementary'">aside needs an aria role</assert>
+        </rule>
+        <rule context="html:section">
+            <assert test="*[1][name()='h1'] or *[1][name()='h2'] or *[1][name()='h3'] or *[1][name()='h4']">section is normally followed by an head  element</assert>
         </rule>
         <rule context="html:section/html:h1">
             <assert test="starts-with(@class, 'head')">H1 has no 'head' class</assert>
