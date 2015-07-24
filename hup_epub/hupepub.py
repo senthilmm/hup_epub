@@ -27,7 +27,7 @@ def get_metadata(opf):
 
 
 def html_tests(files, epub):
-    """For each html file, make the Soup and pass it to the tests."""
+    """For each html, run schematron and check notes."""
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
     notes = epub.open(nuts_file[0])
     note_list = lh.parse(notes).getroot().findall(".//a[@id]")
