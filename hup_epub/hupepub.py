@@ -44,7 +44,7 @@ def html_tests(files, epub):
 
 def check_tags(html):
     """run the schematron tests on each html document"""
-    schema_tree = etree.parse('test.sch')
+    schema_tree = etree.parse('schematron/epub-schematron.sch')
     schematron = isoschematron.Schematron(schema_tree, store_report=True)
     html_parse = etree.parse(html)
     logging.info("%s -------------", html.name)
