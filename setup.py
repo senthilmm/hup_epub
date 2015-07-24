@@ -13,23 +13,19 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the relevant file
-with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
-    long_description = f.read()
 
 setup(
-    name='hup-epub-test',
+    name='hup-epub',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.2.0',
 
-    description='Test suite for epub3 guidelines compliance',
-    long_description=long_description,
+    description='Test suite for epub3 guidelines compliance'
 
     # The project's main homepage.
-#    url='https://github.com/pypa/sampleproject',
+    url='git://git.huit.harvard.edu/hup-epub-test-suite/hup-epub-test-suite.git',
 
     # Author details
     author='Bryan Cholfin at Harvard University Press',
@@ -70,7 +66,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['beautifulsoup4'],
+    install_requires=['lxml'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -85,7 +81,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'sample': ['package_data.dat'],
+        '': ['package_data.dat'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
