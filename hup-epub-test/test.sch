@@ -40,5 +40,14 @@
             <assert test="starts-with(@class, 'head')">H1 has no 'head' class</assert>
             <assert test="contains(@class, '-head') or contains(@class, '-subhead')">H1 has no head-type class</assert>
         </rule>
+        <rule context="html:small">
+            <assert test=".">Prefer span @class='smallcaps' to small</assert>
+        </rule>
+        <rule context="html:ul">
+            <assert test="@class='numbered' or @class='bullet' or @class='no-bullet'">class mismatch for ul</assert>
+        </rule>
+        <rule context="html:ul[@class='numbered']/html:li/html:span">
+            <assert test="@class='list-num' or @class='list-text'">Numbered lists need coding for item number and text.</assert>
+        </rule>
     </pattern>
 </schema>
