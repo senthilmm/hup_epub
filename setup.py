@@ -25,7 +25,7 @@ setup(
     description='Test suite for epub3 guidelines compliance'
 
     # The project's main homepage.
-    url='git://git.huit.harvard.edu/hup-epub-test-suite/hupepub.git',
+    url='https://github.com/bcholfin/hupepub.git',
 
     # Author details
     author='Bryan Cholfin at Harvard University Press',
