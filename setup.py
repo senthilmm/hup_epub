@@ -22,7 +22,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.3.0',
 
-    description='Test suite for epub3 guidelines compliance'
+    description='Test suite for epub3 guidelines compliance',
 
     # The project's main homepage.
     url='https://github.com/bcholfin/hupepub.git',
