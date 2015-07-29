@@ -27,7 +27,7 @@ def get_metadata(opf):
         logging.info("%s, %s", tag, val)
 
 
-def html_tests(files, epub):
+def html_tests(files, epub, schematron):
     """For each html, run schematron and check notes."""
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
     notes = epub.open(nuts_file[0])
@@ -35,7 +35,7 @@ def html_tests(files, epub):
     for html in files:
         file_to_test = html.rsplit('/', maxsplit=1)[1]
         html_file = epub.open(html)
-        check_tags(html_file)
+        check_tags(html_file, schematron)
         note_checks = ["chapter", "intro", "preface"]
         for name in note_checks:
             if name in file_to_test:
@@ -43,14 +43,14 @@ def html_tests(files, epub):
                 check_notes(html_file, note_list, file_to_test)
 
 
-def check_tags(html):
+def check_tags(html, schematron):
     """run the schematron tests on each html document"""
-    schema_tree = etree.parse('schematron/epub-schematron.sch')
-    schematron = isoschematron.Schematron(schema_tree, store_report=True)
+    schema_tree = etree.parse(schematron)
+    schema = isoschematron.Schematron(schema_tree, store_report=True)
     html_parse = etree.parse(html)
     logging.info("%s -------------", html.name)
-    schematron.validate(html_parse)
-    reports = schematron.validation_report
+    schema.validate(html_parse)
+    reports = schema.validation_report
     for report in reports.iter():
         if report.text is None or report.text == "None":
             pass
@@ -78,18 +78,19 @@ def check_notes(html, notes, file_to_test):
         else:
             logging.info('No href attribute')
 
-def main(file):
+def main(file, schematron):
     epub = zipfile.ZipFile(file, 'r')
     output_filename = file.rsplit('.', maxsplit=1)[0]+".txt"
     html_files, css_files, opf_file = parse_file_list(epub)
     logname = file + ".log"
     logging.basicConfig(filename=logname, filemode='w', level=logging.INFO, format='%(message)s')
     get_metadata(epub.open(opf_file[0]))
-    html_tests(html_files, epub)
+    html_tests(html_files, epub, schematron)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("epub", help="epub file to be tested")
+    parser.add_argument("schematron", help="schematron file for test")
     args = parser.parse_args()
-    main(args.epub)
+    main(args.epub, args.schematron)
