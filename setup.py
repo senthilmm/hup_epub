@@ -40,7 +40,7 @@ setup(
     ],
     keywords='Harvard University Press HUP Epub3',
     packages=['hup_epub'],
-    scripts=['hup_epub.py'],
+    scripts=['hup_epub/hup_epub.py'],
     install_requires=['lxml'],
     package_data={
         '': ['schematron/epub-schematron.sch'],
