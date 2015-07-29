@@ -13,4 +13,17 @@ The core of the test is a schematron test suite. The epub archive is opened and 
 
 The log file should have as a header a dump of the metadata from the content.opf file. The script will also attempt to check endnotes against text callouts. The test expects to find all the notes in one file; if the notes are broken into two, the test will fail. Also, the test does not yet deal with notes that may be at the end of a chapter.
 
-Currently, the script is configured to run from the command line with Python 3. It was developed with Python 3.4, and I haven't tested with earlier versions. It takes the name of the file to be tested as an argument, and outputs <test-file-name>.log.
+Currently, the script is configured to run from the command line with Python 3. It was developed with Python 3.4, and I haven't tested with earlier versions.
+
+Install and run
+---------------
+
+This can be installed into an environment with the latest Python and pip. The only dependency is lxml.::
+
+    pip install git+https://github.com/bcholfin/hup_epub.git
+
+Get the epub-schematron.sch file from https://github.com/bcholfin/schematron.git, place it wherever is convenient.
+
+run:::
+
+    hup_epub.py file-to-test.epub epub-schematron.sch
