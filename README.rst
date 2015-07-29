@@ -18,12 +18,14 @@ Currently, the script is configured to run from the command line with Python 3. 
 Install and run
 ---------------
 
-This can be installed into an environment with the latest Python and pip. The only dependency is lxml.::
+This can be installed into an environment with the latest Python and pip. The only dependency is lxml.
+
+::
 
     pip install git+https://github.com/bcholfin/hup_epub.git
 
 Get the epub-schematron.sch file from https://github.com/bcholfin/schematron.git, place it wherever is convenient.
 
-run:::
+run::
 
     hup_epub.py file-to-test.epub epub-schematron.sch
