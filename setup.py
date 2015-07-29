@@ -42,7 +42,7 @@ setup(
     packages=['hup_epub'],
     install_requires=['lxml'],
     package_data={
-        '': ['test.sch'],
+        '': ['schematron/test.sch'],
     },
 
 )
