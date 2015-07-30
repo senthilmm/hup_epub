@@ -30,15 +30,19 @@ def get_metadata(opf):
 def html_tests(files, epub, schematron):
     """For each html, run schematron and check notes."""
     nuts_file = [fname for fname in files if "note" in fname]  # find notes.html
-    notes = epub.open(nuts_file[0])
-    note_list = lh.parse(notes).getroot().findall(".//a[@id]")
+    if nuts_file:
+        notes = epub.open(nuts_file[0])
+        note_list = lh.parse(notes).getroot().findall(".//a[@id]")
+    else:
+        note_list = []
+        logging.info("Notes file not found.")
     for html in files:
         file_to_test = html.rsplit('/', maxsplit=1)[1]
         html_file = epub.open(html)
         check_tags(html_file, schematron)
         note_checks = ["chapter", "intro", "preface"]
         for name in note_checks:
-            if name in file_to_test:
+            if name in file_to_test and note_list:
                 html_file = epub.open(html)
                 check_notes(html_file, note_list, file_to_test)
 
